@@ -12,8 +12,6 @@ float round(float value)
 }
 #endif
 
-#endif
-
 
 bool LabOptimizations::CloseToZero(double a){
 	const volatile float EPSILON = 0.01;
