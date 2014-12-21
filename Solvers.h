@@ -23,8 +23,10 @@ namespace LabOptimizations {
 		LAB_1,
 		LAB_2,
 		LAB_3,
+		LAB_4,
 		LAB_5,
-		LAB_MAX = LAB_5
+		LAB_6,
+		LAB_MAX = LAB_6
 	};
 
 	enum SolutionStatus {
@@ -95,13 +97,23 @@ namespace LabOptimizations {
 	};
 	
 	class SolverLab6 : SolverBase {
-		Matrix m;
+		SimplexMatrix sm;
+		bool is_solved;
+		bool is_failed;
+		std::vector<std::string> output;
+	protected:
+		std::string Bernulli(Matrix m);
+		std::string MaxMin(Matrix m);
+		std::string MaxMax(Matrix m);
+		std::string Gurvic(Matrix m);
+		std::string Risks(Matrix m);
 	public:
-		virtual void Bernulli(Matrix &m, int rows, int lines);
-		virtual void MaxMin(Matrix &m, int rows, int lines);
-		virtual void MaxMax(Matrix &m, int rows, int lines);
-		virtual void Gurvic(Matrix &m, int rows, int lines);
-		virtual void Risks(Matrix &m, int rows, int lines);
+		SolverLab6();
+		void Input(SimplexMatrix &sm);
+		std::string Output();
+		void Solve();
+
+		
 	};
 
 }
