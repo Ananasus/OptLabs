@@ -93,6 +93,16 @@ namespace LabOptimizations {
 	class SolverLab3 : SolverBase {
 
 	};
+	
+	class SolverLab6 : SolverBase {
+		Matrix m;
+	public:
+		virtual void Bernulli(Matrix &m, int rows, int lines);
+		virtual void MaxMin(Matrix &m, int rows, int lines);
+		virtual void MaxMax(Matrix &m, int rows, int lines);
+		virtual void Gurvic(Matrix &m, int rows, int lines);
+		virtual void Risks(Matrix &m, int rows, int lines);
+	};
 
 }
 
