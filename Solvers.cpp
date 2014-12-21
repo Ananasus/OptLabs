@@ -3,13 +3,17 @@
 #include <cmath>
 #include <math.h>
 
-#if defined(_MSC_VER)&&_MSC_VER<1700
+
+#if defined(_MSC_VER)&&_MSC_VER<1600
 float round(float value)
 {
 	
    return floor(value + 0.5);
 }
 #endif
+
+#endif
+
 
 bool LabOptimizations::CloseToZero(double a){
 	const volatile float EPSILON = 0.01;
@@ -46,11 +50,11 @@ void LabOptimizations::SimplexMatrix::swapLabels(size_t line, size_t row){
 	this->line_labels[line] = temp;
 };
 //базовый оверрайд
-LabOptimizations::SimplexMatrix::SimplexMatrix(const Matrix& m):Matrix(m){
+LabOptimizations::SimplexMatrix::SimplexMatrix(const Matrix& m) :Matrix(m){
 	max_x = 0;
 	genLabels();
 };
-LabOptimizations::SimplexMatrix::SimplexMatrix(const SimplexMatrix& sm):Matrix(sm){
+LabOptimizations::SimplexMatrix::SimplexMatrix(const SimplexMatrix& sm) :Matrix(sm){
 	max_x = 0;
 	this->addLabelsFrom(sm);
 }
@@ -186,8 +190,8 @@ float LabOptimizations::SimplexMatrix::SimplexSolve(bool &is_failed, bool to_min
 	is_failed = false; //флаг нерешаемости матрицы
 
 
-	int r, k;	//­номера разрешающих столбца и строки 
-	float RP;	//значение разрежающего элемента
+	int r, k; //­номера разрешающих столбца и строки 
+	float RP; //значение разрежающего элемента
 
 
 	while (1)
@@ -199,7 +203,7 @@ float LabOptimizations::SimplexMatrix::SimplexSolve(bool &is_failed, bool to_min
 			float &v = (*this)[lines - 1][i];
 			if (v<0.01&&v>-0.01)
 				v = 0;
-			if ( (v < 0 && to_min) || (v > 0 && !to_min) )
+			if ((v < 0 && to_min) || (v > 0 && !to_min))
 				is_failed = false;
 		}
 			
@@ -303,7 +307,7 @@ float LabOptimizations::SimplexMatrix::SimplexSolve(bool &is_failed, bool to_min
 
 		RP = this->operator[](r)[k];
 		this->swapLabels(r, k);
-		std::cout << "строка :  " << r + 1 << "	||	столбец: " << k + 1 << "	РЭ:	" << RP << endl;
+		std::cout << "строка : " << r + 1 << " || столбец: " << k + 1 << " РЭ: " << RP << endl;
 		// расчет элементов вне разрешающего столбца и строки
 		for (int i = 0; i < lines; i++)
 			if (i != r)
@@ -347,7 +351,7 @@ float LabOptimizations::SimplexMatrix::SimplexSolve(bool &is_failed, bool to_min
 		std::cout << this->toString();
 		cout << endl;
 	}
-	std::cout << (*this)[lines - 1][0] << "	- решение" << endl
+	std::cout << (*this)[lines - 1][0] << " - решение" << endl
 		<< endl
 		<< "----------------------------------------------------------------------------" << endl;
 	return (*this)[lines - 1][0];
@@ -384,3 +388,234 @@ void LabOptimizations::SolverLab1::Solve() {
 	this->is_solved = true;
 }
 //SOLVERS LAB 3
+
+//SOLVERS LAB 6
+LabOptimizations::SolverLab6::SolverLab6() :is_failed(false), is_solved(false) {
+
+}
+
+void LabOptimizations::SolverLab6::Input(SimplexMatrix &sm) {
+	this->sm = sm;
+};
+
+std::string LabOptimizations::SolverLab6::Output() {
+	if (is_solved) {
+		if (is_failed)
+			return "Симплекс метод решен с ошибкой";
+		else {
+			std::stringstream ss;
+			ss << "Решение данной матрицы: ";
+			ss << sm.toString();
+			for each(string out in this->output)
+				ss << out << std::endl;
+
+			return ss.str();
+		}
+
+	}
+	else
+		return "Лабораторная работа не решена. Требуется вызвать метод Solve()";
+
+}
+void LabOptimizations::SolverLab6::Solve() {
+	this->output.push_back("Бернулли: \r\n"+Bernulli(this->sm));
+	this->output.push_back("Максимин: \r\n" + MaxMin(this->sm));
+	this->output.push_back("Максимакс?: \r\n" + MaxMax(this->sm));
+	this->output.push_back("Гурвик?: \r\n" + Gurvic(this->sm));
+	this->output.push_back("Матрица рисков: \r\n" + Risks(this->sm));
+	is_solved = true;
+}
+
+std::string LabOptimizations::SolverLab6::Bernulli(Matrix m)
+{
+	std::stringstream ss;
+	int rows = m[0].size(), lines = m.size();
+	float* math_wait = new float[lines];
+	int sum = 0;
+	vector<int> opt_strategy_num;
+	float max_math_wait = 0;
+
+	for (int i = 0; i<lines; i++)
+	{
+		for (int j = 0; j<rows; j++)
+			sum += m[i][j];
+		math_wait[i] = sum / rows;
+		sum = 0;
+	}
+
+	for (int i = 0; i < lines; i++) // 
+		if (math_wait[i]>max_math_wait)
+		{
+			max_math_wait = math_wait[i];
+		}
+
+	for (int i = 0; i < lines; i++) // 
+		if (math_wait[i] == max_math_wait)
+			opt_strategy_num.push_back(i);
+
+	ss << " :" << endl;
+	for (int i = 0; i<opt_strategy_num.size(); i++)
+		ss << "a" << opt_strategy_num[i] << endl;
+	ss << " : " << max_math_wait << endl;
+	return ss.str();
+}
+
+std::string LabOptimizations::SolverLab6::MaxMin(Matrix m)
+{
+	std::stringstream ss;
+	int rows = m[0].size(), lines = m.size();
+	int* mins = new int[lines];
+	int maxmin = 0;
+	int min;
+	vector<int> opt_strategy_num;
+
+	for (int i = 0; i<lines; i++)
+	{
+		min = m[i][0];
+		for (int j = 0; j<rows; j++)
+			if (m[i][j]<min)
+				min = m[i][j];
+		mins[i] = min;
+	}
+
+	for (int i = 0; i < lines; i++)
+		if (mins[i]>maxmin)
+			maxmin = mins[i];
+
+	for (int i = 0; i < lines; i++)
+		if (mins[i] == maxmin)
+			opt_strategy_num.push_back(i);
+
+	ss << " :" << endl;
+	for (int i = 0; i<opt_strategy_num.size(); i++)
+		ss << "a" << opt_strategy_num[i] << endl;
+	ss << " : " << maxmin << endl;
+	return ss.str();
+}
+
+std::string LabOptimizations::SolverLab6::MaxMax(Matrix m)
+{
+	std::stringstream ss;
+	int rows = m[0].size(), lines = m.size();
+	bool add = true;
+	vector<int> opt_strategy_num;
+	int maxmax = 0;
+	for (int i = 0; i<lines; i++)
+		for (int j = 0; j<rows; j++)
+			if (m[i][j] >= maxmax)
+				maxmax = m[i][j];
+
+	for (int i = 0; i<lines; i++)
+		for (int j = 0; j<rows; j++)
+			if (m[i][j] = maxmax)
+				for (int k = 0; k < opt_strategy_num.size(); k++)
+				{
+					add = true;
+					if (opt_strategy_num[k] == i)
+						add = false;
+					if (add)
+						opt_strategy_num.push_back(i);
+				}
+	ss << " :" << endl;
+	for (int i = 0; i<opt_strategy_num.size(); i++)
+		ss << "a" << opt_strategy_num[i] << endl;
+	ss << " : " << maxmax << endl;
+	return ss.str();
+}
+
+std::string LabOptimizations::SolverLab6::Gurvic(Matrix m)
+{
+	std::stringstream ss;
+	int rows = m[0].size(), lines = m.size();
+	vector<int> opt_strategy_num;
+	int min;
+	int max = 0;
+	int *mins = new int[lines];
+	int *maxs = new int[lines];
+	float opt_solve = 0;
+	float *solves = new float[lines];
+
+	for (int i = 0; i<lines; i++)
+	{
+		min = m[i][0];
+		for (int j = 0; j<rows; j++)
+		{
+			if (m[i][j]>max)
+				max = m[i][j];
+			if (m[i][j]<min)
+				min = m[i][j];
+		}
+		maxs[i] = max;
+		mins[i] = min;
+		max = 0;
+	}
+
+	for (int i = 0; i<lines; i++)
+	{
+		solves[i] = (0.5 * mins[i]) + (0.5 * maxs[i]);
+		if (opt_solve < solves[i])
+			opt_solve = solves[i];
+	}
+
+	for (int i = 0; i < lines; i++)
+		if (solves[i] == opt_solve)
+			opt_strategy_num.push_back(i);
+
+	ss << " :" << endl;
+	for (int i = 0; i<opt_strategy_num.size(); i++)
+		ss << "a" << opt_strategy_num[i] << endl;
+	ss << " : " << opt_solve << endl;
+	return ss.str();
+}
+
+std::string LabOptimizations::SolverLab6::Risks(Matrix m)
+{
+	std::stringstream ss;
+	int rows = m[0].size(), lines = m.size();
+	vector<int> opt_strategy_num;
+	int max = 0;
+	int max_sorrow = 0;
+	int opt_sorrow;
+	int *sorrows = new int[lines];
+	int *maxs = new int[rows];
+	Matrix risk_matrix = m;
+
+	for (int i = 0; i < lines; i++) // 
+		for (int j = 0; j < rows; j++)
+		{
+			if (m[i][j]>max)
+				max = m[i][j];
+			maxs[i] = max;
+			max = 0;
+		}
+
+	for (int i = 0; i <lines; i++) // 
+		for (int j = 0; j < rows; j++)
+			risk_matrix[i][j] = maxs[i] - risk_matrix[i][j];
+
+	for (int i = 0; i < lines; i++)
+		for (int j = 0; j < rows; j++)
+		{
+			if (risk_matrix[i][j] > max_sorrow)
+				max_sorrow = risk_matrix[i][j];
+			sorrows[i] = max_sorrow;
+			max_sorrow = 0;
+		}
+
+	for (int i = 0; i < lines; i++)
+	{
+		opt_sorrow = risk_matrix[i][0];
+		if (sorrows[i]<opt_sorrow)
+			opt_sorrow = sorrows[i];
+	}
+
+	for (int i = 0; i < lines; i++)
+		if (sorrows[i] == opt_sorrow)
+			opt_strategy_num.push_back(i);
+
+	ss << " :" << endl;
+	for (int i = 0; i<opt_strategy_num.size(); i++)
+		ss << "a" << opt_strategy_num[i] << endl;
+	ss<< " : " << opt_sorrow << endl;
+	return ss.str();
+}

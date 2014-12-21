@@ -30,7 +30,6 @@ Labs Matrix_interface(Matrix &a, int &rows, int &lines){
 	Labs choice;
 	int t;
 	bool err_flag = false;
-	
 	do {
 		std::cout << "Введите номер лабораторой работы:	1-" << (Labs::LAB_MAX + 1) << endl; //индекс с нуля
 		cin >> t;
@@ -39,7 +38,8 @@ Labs Matrix_interface(Matrix &a, int &rows, int &lines){
 			std::cout << "Ошибка, повторите ввод" << endl;
 	} while (err_flag);
 
-	std::ifstream f(choice==Labs::LAB_5?"in5.txt":"in.txt");
+
+	std::ifstream f(choice==LAB_5?"in5.txt":choice==LAB_6?"in6.txt":"in.txt");
 	f >> lines >> rows;
 
 	//создание матрицы
@@ -53,6 +53,7 @@ Labs Matrix_interface(Matrix &a, int &rows, int &lines){
 
 	}
 	
+
 
 	f.close();
 	return choice;
@@ -313,7 +314,15 @@ void main() {
 		}
 		else
 			cout << "Симплекс метод решен с ошибкой." << endl;
-		
+
+	}
+		break;
+	case LAB_6:
+	{
+		SolverLab6 solver;
+		solver.Input(a);
+		solver.Solve();
+		cout << solver.Output();
 	}
 		break;
 	default:
