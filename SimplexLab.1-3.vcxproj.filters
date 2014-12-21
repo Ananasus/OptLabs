@@ -18,6 +18,9 @@
     <Text Include="in.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="in5.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

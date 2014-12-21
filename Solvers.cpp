@@ -3,10 +3,13 @@
 #include <cmath>
 #include <math.h>
 
-float round (float value)
+#if defined(_MSC_VER)&&_MSC_VER<1700
+float round(float value)
 {
+	
    return floor(value + 0.5);
 }
+#endif
 
 bool LabOptimizations::CloseToZero(double a){
 	const volatile float EPSILON = 0.01;
@@ -49,7 +52,7 @@ LabOptimizations::SimplexMatrix::SimplexMatrix(const Matrix& m):Matrix(m){
 };
 LabOptimizations::SimplexMatrix::SimplexMatrix(const SimplexMatrix& sm):Matrix(sm){
 	max_x = 0;
-	genLabels();
+	this->addLabelsFrom(sm);
 }
 LabOptimizations::SimplexMatrix::SimplexMatrix(){
 	max_x = 0;
@@ -97,6 +100,7 @@ std::string LabOptimizations::SimplexMatrix::toString() const{
 void LabOptimizations::SimplexMatrix::addLabelsFrom(const SimplexMatrix& sm) {
 	this->line_labels = sm.line_labels;
 	this->row_labels = sm.row_labels;
+	this->max_x = sm.max_x;
 };
 
 LabOptimizations::SimplexMatrix LabOptimizations::SimplexMatrix::SimplexInvert() const {
@@ -128,7 +132,7 @@ LabOptimizations::SimplexMatrix LabOptimizations::SimplexMatrix::SimplexInvert()
 	return b;
 }
 
-void LabOptimizations::SimplexMatrix::SplitChildren(SimplexMatrixNode &node){
+bool LabOptimizations::SimplexMatrix::SplitChildren(SimplexMatrixNode &node){
 	//матрица узла
 	SimplexMatrix m = *node;
 	int line_num;
@@ -138,7 +142,7 @@ void LabOptimizations::SimplexMatrix::SplitChildren(SimplexMatrixNode &node){
 	std::vector<float> line_to_add, line_to_add_ceil;
 	for (i = 0; i < lines - 1; ++i)
 		//проверка - является ли переменная целочисленной
-		if (!IsInteger((*this)[i][0]))
+		if (!IsInteger((*this)[i][0])&&IsTargetFunctionParameter(i,true))
 		{
 			//строка, по которой происходит разделение
 			line_num = i;
@@ -159,7 +163,9 @@ void LabOptimizations::SimplexMatrix::SplitChildren(SimplexMatrixNode &node){
 				//выходим из цикла
 				break;
 		}
-
+	//если не нашли переменной ветвления
+	if (i == lines - 1)
+		return false;
 	//добавляем в предпоследнюю строку для каждой новой симплекс-таблицы.
 	(*child_1).insert((*child_1).begin() + (*child_1).size() - 1, line_to_add);
 	(*child_2).insert((*child_2).begin() + (*child_2).size() - 1, line_to_add_ceil);
@@ -169,7 +175,7 @@ void LabOptimizations::SimplexMatrix::SplitChildren(SimplexMatrixNode &node){
 	//добавляем в дерево две таблицы
 	node.addChild(child_1);
 	node.addChild(child_2);
-
+	return true;
 };
 
 float LabOptimizations::SimplexMatrix::SimplexSolve(bool &is_failed, bool to_min, bool show_progress, bool show_final_tab){
@@ -206,7 +212,7 @@ float LabOptimizations::SimplexMatrix::SimplexSolve(bool &is_failed, bool to_min
 			float &v = (*this)[i][0];
 			 if (v<0.01&&v>-0.01)
 				 v = 0;
-			if ( (v < 0 && to_min) || (v > 0 && !to_min) )
+			if ( (v > 0 && to_min) || (v < 0 && !to_min) )
 			{
 
 				is_failed = true;
@@ -238,7 +244,7 @@ float LabOptimizations::SimplexMatrix::SimplexSolve(bool &is_failed, bool to_min
 		//нахождение разрешающего столбца и строки (если еще не нашли)
 		if (r == -1 || k == -1)
 		{
-			bool flag = 1;
+			bool flag = 1, first_time = true;
 			min = 0;
 			int max = 100000;
 			int min_pos = -1;
@@ -251,11 +257,12 @@ float LabOptimizations::SimplexMatrix::SimplexSolve(bool &is_failed, bool to_min
 					float m = (*this)[lines - 1][i];
 
 					if (
-						(abs(m) > min) && (abs(m) < max) &&
-						((m > 0 && !to_min) || (m < 0 && to_min)) 
+						((abs(m) > min) && (abs(m) < max) &&
+						((m < 0 && !to_min) || (m > 0 && to_min))) 
 					   )
 						//old((m < 0 && (choice == LAB_2 || choice == LAB_3)) || (m < 0 && choice == LAB_1))) //Амбер всех условий
 					{
+						first_time = false;
 						min = abs(m);
 						min_pos = i;
 					}

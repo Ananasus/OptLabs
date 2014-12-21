@@ -23,6 +23,7 @@ namespace LabOptimizations {
 		LAB_1,
 		LAB_2,
 		LAB_3,
+		LAB_4,
 		LAB_5,
 		LAB_MAX = LAB_5
 	};
@@ -53,6 +54,7 @@ namespace LabOptimizations {
 		void addRowLabel();
 		void genLabels();
 		void swapLabels(size_t line, size_t row);
+		
 	public:
 		//базовый оверрайд
 		SimplexMatrix(const Matrix& m);
@@ -63,10 +65,23 @@ namespace LabOptimizations {
 		std::string toString() const;
 		//Дефолтный конструктор - не нужно самим ничего удалять
 		//ПУБЛИЧНЫЕ МЕТОДЫ
+		//Копирует надписи из другой матрицы
 		void addLabelsFrom(const SimplexMatrix& sm);
+		//Инвертирует матрицу
 		SimplexMatrix SimplexInvert() const;
-		void SplitChildren(SimplexMatrixNode &node);
+		//Делит по первой целевой дробной переменной
+		//true - если есть, что делить (поделил). false - если нет.
+		bool SplitChildren(SimplexMatrixNode &node);
+		//решает матрицу. Осторожней с выбором to_min. Может войти в бесконечный цикл (ибо может быть, что решения нет)
 		float SimplexSolve(bool &is_failed, bool to_min, bool show_progress = true, bool show_final_tab = true);
+		//проверяет, входит ли переменная в целевую функцию.
+		//переменная должна лежать либо в нулевом столбце, либо в последней строке
+		//параметр is_line регулирует, по чему ведется проверка - по строке или по столбцу
+		//параметр index задает, собственно, индекс из таблицы той переменной, которая проверяется
+		bool IsTargetFunctionParameter(size_t index, bool is_line = true) const{
+			int r = (is_line ? this->line_labels[index] : this->row_labels[index] );
+			return r < this->row_labels.size();
+		}
 	};
 
 	//интерфейс для всех решений

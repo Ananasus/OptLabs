@@ -18,7 +18,7 @@ bool check_solution_integer(const SimplexMatrix &a, bool &is_f_integer){
 	size_t lines = a.size();
 
 	for (size_t i = 0; i < lines - 1; ++i)
-		if (!IsInteger(a[i][0]))
+		if (!IsInteger(a[i][0])&&a.IsTargetFunctionParameter(i,true))
 			return false;
 
 	is_f_integer = IsInteger(a[lines - 1][0]);
@@ -30,7 +30,16 @@ Labs Matrix_interface(Matrix &a, int &rows, int &lines){
 	Labs choice;
 	int t;
 	bool err_flag = false;
-	std::ifstream f("in.txt");
+	
+	do {
+		std::cout << "Введите номер лабораторой работы:	1-" << (Labs::LAB_MAX + 1) << endl; //индекс с нуля
+		cin >> t;
+		choice = (Labs)(t - 1); //конвертируем в t
+		if ((err_flag = (choice >= Labs::LAB_MAX + 1 || t <= 0)))
+			std::cout << "Ошибка, повторите ввод" << endl;
+	} while (err_flag);
+
+	std::ifstream f(choice==Labs::LAB_5?"in5.txt":"in.txt");
 	f >> lines >> rows;
 
 	//создание матрицы
@@ -43,13 +52,7 @@ Labs Matrix_interface(Matrix &a, int &rows, int &lines){
 			f >> (a)[i][j];
 
 	}
-	do {
-		std::cout << "Введите номер лабораторой работы:	1-" << (Labs::LAB_MAX + 1) << endl; //индекс с нуля
-		cin >> t;
-		choice = (Labs)(t - 1); //конвертируем в t
-		if ((err_flag = (choice >= Labs::LAB_MAX + 1 || t <= 0)))
-			std::cout << "Ошибка, повторите ввод" << endl;
-	} while (err_flag);
+	
 
 	f.close();
 	return choice;
@@ -90,7 +93,7 @@ bool recursive_integer_method(SimplexMatrixNode &entryNode, SimplexMatrix& best)
 	bool failed = false;
 	
 	SimplexMatrix before(*entryNode);
-	float sm = (*entryNode).SimplexSolve(failed, true, false, true);
+	float sm = (*entryNode).SimplexSolve(failed, false, false, true);
 	cout << "После симплекс-метода" << ". Метод прошел " << (failed ? "с ошибкой" : "успешно") << std::endl;
 	//print_array(*entryNode);
 	if (failed)
@@ -210,13 +213,14 @@ void main() {
 		cout << " Формулировка задачи ЛП" << endl;
 		cout << a_s.toString();
 		float r1 = a_s.SimplexSolve(failed, true, true, false);
+		cout << "Решение задачи ЛП: " << r1 << std::endl;
 	}
 	break;
 	case LAB_2:
 	{
 		cout << "Формулировка прямой задачи:";
 		cout << a_s.toString();
-		float r1 = a_s.SimplexSolve(failed, choice);
+		float r1 = a_s.SimplexSolve(failed, false, true, false);
 
 		SimplexMatrix b = a.SimplexInvert();
 		cout << "Формулировка Двойственной задачи: " << endl;
@@ -224,14 +228,16 @@ void main() {
 		float r2 = -b.SimplexSolve(failed, false, true, false);
 		cout << "Двойственная задача: " << r2 << endl;
 		if (abs(r1 - r2) < 0.01)
-			cout << "Решение двойственной задачи равно решению прямой задачи";
+			cout << "Решение двойственной задачи равно решению прямой задачи" << std::endl;
+		else
+			cout << "Решение прямой задачи и двойственной не совпадают: " << r1 << "!=" << r2 << std::endl;
 	}
 	break;
 	case LAB_3:
 	{
 		cout << "Решение начальной матрицы:";
 		cout << a_s.toString();
-		float r1 = a_s.SimplexSolve(failed, true, false, true);
+		float r1 = a_s.SimplexSolve(failed, false, false, true);
 		bool needed = true;
 		bool  is_f_integer = false, is_integer = false;
 		SimplexMatrixNode parent(a_s);
@@ -268,6 +274,12 @@ void main() {
 	
 	case LAB_5:
 	{
+		cout << "Исходная симплекс таблица решений" << endl;
+		cout << a_s.toString();
+		bool is_failed = true;
+		float r1 = a_s.SimplexSolve(is_failed, false, true, true);
+		//четк
+
 
 	}
 		break;
