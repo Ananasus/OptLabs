@@ -12,13 +12,13 @@ bool LabOptimizations::CloseToZero(double a){
 	const volatile float EPSILON = 0.01;
 	return (fabs(a) < EPSILON);
 }
-//is_f_integer - является ли f - целым
+//is_f_integer - ГїГўГ«ГїГҐГІГ±Гї Г«ГЁ f - Г¶ГҐГ«Г»Г¬
 bool LabOptimizations::IsInteger(float a){
 	if (CloseToZero(a))
 		return true;
 	return fabs(round(a) - a) < 0.01;
 }
-//возвращает тру, если весь первый столбец - целочисленный
+//ГўГ®Г§ГўГ°Г Г№Г ГҐГІ ГІГ°Гі, ГҐГ±Г«ГЁ ГўГҐГ±Гј ГЇГҐГ°ГўГ»Г© Г±ГІГ®Г«ГЎГҐГ¶ - Г¶ГҐГ«Г®Г·ГЁГ±Г«ГҐГ­Г­Г»Г©
 
 //CLASSES
 void LabOptimizations::SimplexMatrix::addLineLabel(){
@@ -42,7 +42,7 @@ void LabOptimizations::SimplexMatrix::swapLabels(size_t line, size_t row){
 	this->row_labels[row] = this->line_labels[line];
 	this->line_labels[line] = temp;
 };
-//базовый оверрайд
+//ГЎГ Г§Г®ГўГ»Г© Г®ГўГҐГ°Г°Г Г©Г¤
 LabOptimizations::SimplexMatrix::SimplexMatrix(const Matrix& m):Matrix(m){
 	max_x = 0;
 	genLabels();
@@ -63,8 +63,8 @@ LabOptimizations::SimplexMatrix& LabOptimizations::SimplexMatrix::operator = (co
 	return *this;
 };
 
-//своппер	
-//выход
+//Г±ГўГ®ГЇГЇГҐГ°	
+//ГўГ»ГµГ®Г¤
 std::string LabOptimizations::SimplexMatrix::toString() const{
 	int i, j;
 	const short width = 8;
@@ -72,7 +72,7 @@ std::string LabOptimizations::SimplexMatrix::toString() const{
 	ss.precision(2);
 	ss.setf(ios::fixed);
 	size_t lines = this->size(), rows = (*this)[0].size();
-	//лейблы на столбцы
+	//Г«ГҐГ©ГЎГ«Г» Г­Г  Г±ГІГ®Г«ГЎГ¶Г»
 	ss << std::setw(width) << " " << " ";
 	for (i = 0; i < rows; ++i)
 		ss << std::setw(width + 1) << (i ? "x" : "s") << row_labels[i];
@@ -93,7 +93,7 @@ std::string LabOptimizations::SimplexMatrix::toString() const{
 	return ss.str();
 
 };
-//МЕТОДЫ
+//ГЊГ…Г’ГЋГ„Г›
 void LabOptimizations::SimplexMatrix::addLabelsFrom(const SimplexMatrix& sm) {
 	this->line_labels = sm.line_labels;
 	this->row_labels = sm.row_labels;
@@ -129,24 +129,24 @@ LabOptimizations::SimplexMatrix LabOptimizations::SimplexMatrix::SimplexInvert()
 }
 
 void LabOptimizations::SimplexMatrix::SplitChildren(SimplexMatrixNode &node){
-	//матрица узла
+	//Г¬Г ГІГ°ГЁГ¶Г  ГіГ§Г«Г 
 	SimplexMatrix m = *node;
 	int line_num;
 	SimplexMatrixNode child_1(m), child_2(m);
 	size_t i, lines = m.size(), rows = m[0].size();
-	//новые ограничения: ограничение на округление вниз и вверх
+	//Г­Г®ГўГ»ГҐ Г®ГЈГ°Г Г­ГЁГ·ГҐГ­ГЁГї: Г®ГЈГ°Г Г­ГЁГ·ГҐГ­ГЁГҐ Г­Г  Г®ГЄГ°ГіГЈГ«ГҐГ­ГЁГҐ ГўГ­ГЁГ§ ГЁ ГўГўГҐГ°Гµ
 	std::vector<float> line_to_add, line_to_add_ceil;
 	for (i = 0; i < lines - 1; ++i)
-		//проверка - является ли переменная целочисленной
+		//ГЇГ°Г®ГўГҐГ°ГЄГ  - ГїГўГ«ГїГҐГІГ±Гї Г«ГЁ ГЇГҐГ°ГҐГ¬ГҐГ­Г­Г Гї Г¶ГҐГ«Г®Г·ГЁГ±Г«ГҐГ­Г­Г®Г©
 		if (!IsInteger((*this)[i][0]))
 		{
-			//строка, по которой происходит разделение
+			//Г±ГІГ°Г®ГЄГ , ГЇГ® ГЄГ®ГІГ®Г°Г®Г© ГЇГ°Г®ГЁГ±ГµГ®Г¤ГЁГІ Г°Г Г§Г¤ГҐГ«ГҐГ­ГЁГҐ
 			line_num = i;
-			//выделяем память
+			//ГўГ»Г¤ГҐГ«ГїГҐГ¬ ГЇГ Г¬ГїГІГј
 			line_to_add.resize(rows);
 			line_to_add_ceil.resize(rows);
 			for (int j = 0; j < rows; j++)
-				//заполняем строчки ограничения
+				//Г§Г ГЇГ®Г«Г­ГїГҐГ¬ Г±ГІГ°Г®Г·ГЄГЁ Г®ГЈГ°Г Г­ГЁГ·ГҐГ­ГЁГї
 				if (j == 0)
 				{
 					line_to_add[j] = floorf(m[line_num][j]) - m[line_num][j];
@@ -156,17 +156,17 @@ void LabOptimizations::SimplexMatrix::SplitChildren(SimplexMatrixNode &node){
 					line_to_add_ceil[j] = m[line_num][j];
 					line_to_add[j] = -(m[line_num][j]);
 				}
-				//выходим из цикла
+				//ГўГ»ГµГ®Г¤ГЁГ¬ ГЁГ§ Г¶ГЁГЄГ«Г 
 				break;
 		}
 
-	//добавляем в предпоследнюю строку для каждой новой симплекс-таблицы.
+	//Г¤Г®ГЎГ ГўГ«ГїГҐГ¬ Гў ГЇГ°ГҐГ¤ГЇГ®Г±Г«ГҐГ¤Г­ГѕГѕ Г±ГІГ°Г®ГЄГі Г¤Г«Гї ГЄГ Г¦Г¤Г®Г© Г­Г®ГўГ®Г© Г±ГЁГ¬ГЇГ«ГҐГЄГ±-ГІГ ГЎГ«ГЁГ¶Г».
 	(*child_1).insert((*child_1).begin() + (*child_1).size() - 1, line_to_add);
 	(*child_2).insert((*child_2).begin() + (*child_2).size() - 1, line_to_add_ceil);
-	//вставляем лейбл
+	//ГўГ±ГІГ ГўГ«ГїГҐГ¬ Г«ГҐГ©ГЎГ«
 	(*child_1).addLineLabel();
 	(*child_2).addLineLabel();
-	//добавляем в дерево две таблицы
+	//Г¤Г®ГЎГ ГўГ«ГїГҐГ¬ Гў Г¤ГҐГ°ГҐГўГ® Г¤ГўГҐ ГІГ ГЎГ«ГЁГ¶Г»
 	node.addChild(child_1);
 	node.addChild(child_2);
 
@@ -176,18 +176,18 @@ float LabOptimizations::SimplexMatrix::SimplexSolve(bool &is_failed, bool to_min
 	int lines = this->size();
 	int rows = (*this)[0].size();
 
-	is_failed = false; //флаг нерешаемости матрицы
+	is_failed = false; //ГґГ«Г ГЈ Г­ГҐГ°ГҐГёГ ГҐГ¬Г®Г±ГІГЁ Г¬Г ГІГ°ГЁГ¶Г»
 
 
-	int r, k;	//­номера разрешающих столбца и строки 
-	float RP;	//значение разрежающего элемента
+	int r, k;	//В­Г­Г®Г¬ГҐГ°Г  Г°Г Г§Г°ГҐГёГ ГѕГ№ГЁГµ Г±ГІГ®Г«ГЎГ¶Г  ГЁ Г±ГІГ°Г®ГЄГЁВ 
+	float RP;	//Г§Г­Г Г·ГҐГ­ГЁГҐ Г°Г Г§Г°ГҐГ¦Г ГѕГ№ГҐГЈГ® ГЅГ«ГҐГ¬ГҐГ­ГІГ 
 
 
 	while (1)
 	{
 		is_failed = true;
 
-		//проверки строки функции на отрицательные элементы
+		//ГЇГ°Г®ГўГҐГ°ГЄГЁ Г±ГІГ°Г®ГЄГЁ ГґГіГ­ГЄГ¶ГЁГЁ Г­Г  Г®ГІГ°ГЁГ¶Г ГІГҐГ«ГјГ­Г»ГҐ ГЅГ«ГҐГ¬ГҐГ­ГІГ»
 		for (int i = 1; i < rows && is_failed; i++) {
 			float &v = (*this)[lines - 1][i];
 			if (v<0.01&&v>-0.01)
@@ -197,10 +197,10 @@ float LabOptimizations::SimplexMatrix::SimplexSolve(bool &is_failed, bool to_min
 		}
 			
 
-		//проверка столбца свободных членов на отрицательные элементы
+		//ГЇГ°Г®ГўГҐГ°ГЄГ  Г±ГІГ®Г«ГЎГ¶Г  Г±ГўГ®ГЎГ®Г¤Г­Г»Гµ Г·Г«ГҐГ­Г®Гў Г­Г  Г®ГІГ°ГЁГ¶Г ГІГҐГ«ГјГ­Г»ГҐ ГЅГ«ГҐГ¬ГҐГ­ГІГ»
 		r = k = -1;
 		float min = 100000;
-		bool met_negative = false; //флаг, встречен ли отрицательный элемент в нулевом стобце
+		bool met_negative = false; //ГґГ«Г ГЈ, ГўГ±ГІГ°ГҐГ·ГҐГ­ Г«ГЁ Г®ГІГ°ГЁГ¶Г ГІГҐГ«ГјГ­Г»Г© ГЅГ«ГҐГ¬ГҐГ­ГІ Гў Г­ГіГ«ГҐГўГ®Г¬ Г±ГІГ®ГЎГ¶ГҐ
 		int i;
 		for (i = 0; i < lines - 1; i++) {
 			float &v = (*this)[i][0];
@@ -231,11 +231,11 @@ float LabOptimizations::SimplexMatrix::SimplexSolve(bool &is_failed, bool to_min
 		}
 			
 
-		//показ ошибки, если матрица не решаема
+		//ГЇГ®ГЄГ Г§ Г®ГёГЁГЎГЄГЁ, ГҐГ±Г«ГЁ Г¬Г ГІГ°ГЁГ¶Г  Г­ГҐ Г°ГҐГёГ ГҐГ¬Г 
 		if (is_failed)
 			return 0;
 
-		//нахождение разрешающего столбца и строки (если еще не нашли)
+		//Г­Г ГµГ®Г¦Г¤ГҐГ­ГЁГҐ Г°Г Г§Г°ГҐГёГ ГѕГ№ГҐГЈГ® Г±ГІГ®Г«ГЎГ¶Г  ГЁ Г±ГІГ°Г®ГЄГЁ (ГҐГ±Г«ГЁ ГҐГ№ГҐ Г­ГҐ Г­Г ГёГ«ГЁ)
 		if (r == -1 || k == -1)
 		{
 			bool flag = 1;
@@ -254,7 +254,7 @@ float LabOptimizations::SimplexMatrix::SimplexSolve(bool &is_failed, bool to_min
 						(abs(m) > min) && (abs(m) < max) &&
 						((m > 0 && !to_min) || (m < 0 && to_min)) 
 					   )
-						//old((m < 0 && (choice == LAB_2 || choice == LAB_3)) || (m < 0 && choice == LAB_1))) //Амбер всех условий
+						//old((m < 0 && (choice == LAB_2 || choice == LAB_3)) || (m < 0 && choice == LAB_1))) //ГЂГ¬ГЎГҐГ° ГўГ±ГҐГµ ГіГ±Г«Г®ГўГЁГ©
 					{
 						min = abs(m);
 						min_pos = i;
@@ -289,34 +289,34 @@ float LabOptimizations::SimplexMatrix::SimplexSolve(bool &is_failed, bool to_min
 
 		}
 
-		//выход из цикла обсчета , если что-то не так
+		//ГўГ»ГµГ®Г¤ ГЁГ§ Г¶ГЁГЄГ«Г  Г®ГЎГ±Г·ГҐГІГ  , ГҐГ±Г«ГЁ Г·ГІГ®-ГІГ® Г­ГҐ ГІГ ГЄ
 		if (r == -1 || k == -1)
 			break;
 
 		RP = this->operator[](r)[k];
 		this->swapLabels(r, k);
-		std::cout << "строка :  " << r + 1 << "	||	столбец: " << k + 1 << "	РЭ:	" << RP << endl;
-		// расчет элементов вне разрешающего столбца и строки
+		std::cout << "Г±ГІГ°Г®ГЄГ В :  " << r + 1 << "	||	Г±ГІГ®Г«ГЎГҐГ¶: " << k + 1 << "	ГђГќ:	" << RP << endl;
+		// Г°Г Г±Г·ГҐГІ ГЅГ«ГҐГ¬ГҐГ­ГІГ®Гў ГўГ­ГҐ Г°Г Г§Г°ГҐГёГ ГѕГ№ГҐГЈГ® Г±ГІГ®Г«ГЎГ¶Г  ГЁ Г±ГІГ°Г®ГЄГЁ
 		for (int i = 0; i < lines; i++)
 			if (i != r)
 				for (int j = 0; j < rows; j++)
 					if (j != k)
 						(*this)[i][j] -= (*this)[i][k] * (*this)[r][j] / RP;
 
-		//нахождение нового значения разрешающего элемента
+		//Г­Г ГµГ®Г¦Г¤ГҐГ­ГЁГҐ Г­Г®ГўГ®ГЈГ® Г§Г­Г Г·ГҐГ­ГЁГї Г°Г Г§Г°ГҐГёГ ГѕГ№ГҐГЈГ® ГЅГ«ГҐГ¬ГҐГ­ГІГ 
 		(*this)[r][k] = 1 / (*this)[r][k]; // a[r][k] -> a*[r][k]
 
-		//расчет разрешающей строки
+		//Г°Г Г±Г·ГҐГІ Г°Г Г§Г°ГҐГёГ ГѕГ№ГҐГ© Г±ГІГ°Г®ГЄГЁ
 		for (int j = 0; j < rows; j++)
 			if (j != k)
 				(*this)[r][j] = (*this)[r][j] / RP;
 
-		//расчет разрешающего столбца
+		//Г°Г Г±Г·ГҐГІ Г°Г Г§Г°ГҐГёГ ГѕГ№ГҐГЈГ® Г±ГІГ®Г«ГЎГ¶Г 
 		for (int i = 0; i < lines; i++)
 			if (i != r)
 				(*this)[i][k] = (*this)[i][k] / RP*(-1);
 
-		//проверка на окончательность решения по строке функции
+		//ГЇГ°Г®ГўГҐГ°ГЄГ  Г­Г  Г®ГЄГ®Г­Г·Г ГІГҐГ«ГјГ­Г®Г±ГІГј Г°ГҐГёГҐГ­ГЁГї ГЇГ® Г±ГІГ°Г®ГЄГҐ ГґГіГ­ГЄГ¶ГЁГЁ
 		int count = 0;
 		for (int j = 1; j < rows; j++)
 			if ((*this)[lines - 1][j] <= 0) // a[m-1][j] <= 0
@@ -329,17 +329,17 @@ float LabOptimizations::SimplexMatrix::SimplexSolve(bool &is_failed, bool to_min
 			std::cout << endl;
 		}
 
-		//выход из цикла, если условие удовлетворено
+		//ГўГ»ГµГ®Г¤ ГЁГ§ Г¶ГЁГЄГ«Г , ГҐГ±Г«ГЁ ГіГ±Г«Г®ГўГЁГҐ ГіГ¤Г®ГўГ«ГҐГІГўГ®Г°ГҐГ­Г®
 		if (count == rows - 1)
 			break;
 	}
-	//вывод решения 
+	//ГўГ»ГўГ®Г¤ Г°ГҐГёГҐГ­ГЁГїВ 
 	if (show_final_tab)
 	{
 		std::cout << this->toString();
 		cout << endl;
 	}
-	std::cout << (*this)[lines - 1][0] << "	- решение" << endl
+	std::cout << (*this)[lines - 1][0] << "	- Г°ГҐГёГҐГ­ГЁГҐ" << endl
 		<< endl
 		<< "----------------------------------------------------------------------------" << endl;
 	return (*this)[lines - 1][0];
@@ -357,18 +357,18 @@ void LabOptimizations::SolverLab1::Input(SimplexMatrix &sm) {
 std::string LabOptimizations::SolverLab1::Output() {
 	if (is_solved) {
 		if (is_failed)
-			return "Симплекс метод решен с ошибкой";
+			return "Г‘ГЁГ¬ГЇГ«ГҐГЄГ± Г¬ГҐГІГ®Г¤ Г°ГҐГёГҐГ­ Г± Г®ГёГЁГЎГЄГ®Г©";
 		else {
 			std::stringstream ss;
-			ss << "Решение лабораторной работы: " << sm[sm.size() - 1][0] << std::endl;
+			ss << "ГђГҐГёГҐГ­ГЁГҐ Г«Г ГЎГ®Г°Г ГІГ®Г°Г­Г®Г© Г°Г ГЎГ®ГІГ»: " << sm[sm.size() - 1][0] << std::endl;
 			ss << sm.toString();
 			return ss.str();
 		}
 
 	}
 	else
-		return "Лабораторная работа не решена. "
-		"Требуется вызвать метод Solve()";
+		return "Г‹Г ГЎГ®Г°Г ГІГ®Г°Г­Г Гї Г°Г ГЎГ®ГІГ  Г­ГҐ Г°ГҐГёГҐГ­Г . "
+		"Г’Г°ГҐГЎГіГҐГІГ±Гї ГўГ»Г§ГўГ ГІГј Г¬ГҐГІГ®Г¤ Solve()";
 
 }
 void LabOptimizations::SolverLab1::Solve() {
@@ -376,3 +376,184 @@ void LabOptimizations::SolverLab1::Solve() {
 	this->is_solved = true;
 }
 //SOLVERS LAB 3
+
+//SOLVERS LAB 6
+
+void LabOptimizations::SolverLab6::Bernulli(Matrix &m, int rows, int lines)
+{
+	float* math_wait = new float[lines];
+	int sum =0;
+	vector<int> opt_strategy_num;
+	float max_math_wait = 0;
+
+	for(int i = 0; i<lines; i++) 
+	{
+		for(int j=0; j<rows; j++)
+			sum += m[i][j];
+		math_wait[i]=sum/rows;
+		sum=0;
+	}
+
+	for(int i = 0; i < lines; i++)               //РЅР°С…РѕРґРёРј РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ РјР°С‚РµРјР°С‚РёС‡РµСЃРєРѕРµ РѕР¶РёРґР°РЅРёРµ РІС‹РёРіСЂС‹С€Р°
+		if(math_wait[i]>max_math_wait)
+		{
+			max_math_wait = math_wait[i];
+		}
+
+	for(int i = 0; i < lines; i++)                   // РЅР°С…РѕРґРёРј РѕРїС‚РёРјР°Р»СЊРЅС‹Рµ СЃС‚СЂР°С‚РµРіРёРё
+		if(math_wait[i]==max_math_wait)
+			opt_strategy_num.push_back(i);
+
+		cout << "РћРїС‚РёРјР°Р»СЊРЅС‹Рµ СЃС‚СЂР°С‚РµРіРёРё:"<< endl;
+		for(int i=0; i<opt_strategy_num.size; i++)
+			cout << "a" << opt_strategy_num[i] << endl;
+		cout << "РЎРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµРµ РјР°С‚РµРјР°С‚РёС‡РµСЃРєРѕРµ РѕР¶РёРґР°РЅРёРµ РІС‹РёРіСЂС‹С€Р°: "<< max_math_wait << endl;
+}
+
+void LabOptimizations::SolverLab6::MaxMin(Matrix &m, int rows, int lines)
+{
+	int* mins = new int[lines];
+	int maxmin = 0;
+	int min;
+	vector<int> opt_strategy_num;
+
+	for(int i = 0; i<lines; i++) 
+	{
+		min = m[i][0];
+		for(int j=0; j<rows; j++)
+			if(m[i][j]<min)
+				min = m[i][j];
+		mins[i] = min;
+	}
+
+	for(int i = 0; i < lines; i++)
+		if(mins[i]>maxmin)
+			maxmin=mins[i];
+
+    for(int i = 0; i < lines; i++)
+		if(mins[i] == maxmin)
+			opt_strategy_num.push_back(i);
+
+	cout << "РћРїС‚РёРјР°Р»СЊРЅС‹Рµ СЃС‚СЂР°С‚РµРіРёРё:"<< endl;
+		for(int i=0; i<opt_strategy_num.size; i++)
+			cout << "a" << opt_strategy_num[i] << endl;
+		cout << "РЎРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ РѕР¶РёРґР°РµРјС‹Р№ РІС‹РёРіСЂС‹С€: "<< maxmin << endl;
+}
+
+void LabOptimizations::SolverLab6::MaxMax(Matrix &m, int rows, int lines)
+{
+	bool add = true;
+	vector<int> opt_strategy_num;
+	int maxmax = 0;
+	for(int i = 0; i<lines; i++) 
+		for(int j=0; j<rows; j++)
+			if(m[i][j]>=maxmax)
+				maxmax = m[i][j];
+
+	for(int i = 0; i<lines; i++) 
+		for(int j=0; j<rows; j++)
+			if(m[i][j]=maxmax)
+				for(int k = 0; k < opt_strategy_num.size; k++)
+				{
+					add = true;
+					if(opt_strategy_num[k] == i)
+						add = false;
+					if(add)
+						opt_strategy_num.push_back(i);
+				}
+	cout << "РћРїС‚РёРјР°Р»СЊРЅС‹Рµ СЃС‚СЂР°С‚РµРіРёРё:"<< endl;
+	for(int i=0; i<opt_strategy_num.size; i++)
+		cout << "a" << opt_strategy_num[i] << endl;
+	cout << "РЎРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ РѕР¶РёРґР°РµРјС‹Р№ РІС‹РёРіСЂС‹С€: "<< maxmax << endl;
+}
+
+void LabOptimizations::SolverLab6::Gurvic(Matrix &m, int rows, int lines)
+{
+	vector<int> opt_strategy_num;
+	int min;
+	int max = 0;
+	int *mins =new int[lines];
+	int *maxs =new int[lines];
+	float opt_solve;
+	float *solves = new float[lines];
+
+	for(int i = 0; i<lines; i++) 
+	{
+		min = m[i][0];
+		for(int j=0; j<rows; j++)
+		{
+			if(m[i][j]>max)
+				max = m[i][j];
+			if(m[i][j]<min)
+				min = m[i][j];
+		}
+		maxs[i] = max;
+		mins[i] = min;
+		max=0;
+	}
+
+	for(int i = 0; i<lines; i++)
+	{
+		solves[i] = (0.5 * mins[i]) + (0.5 * maxs[i]);
+		if(opt_solve < solves[i])
+			opt_solve = solves[i];
+	}
+
+	for(int i = 0; i < lines; i++)
+		if(solves[i] == opt_solve)
+			opt_strategy_num.push_back(i);
+
+	cout << "РћРїС‚РёРјР°Р»СЊРЅС‹Рµ СЃС‚СЂР°С‚РµРіРёРё:"<< endl;
+	for(int i=0; i<opt_strategy_num.size; i++)
+		cout << "a" << opt_strategy_num[i] << endl;
+	cout << "РЎРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ РѕР¶РёРґР°РµРјС‹Р№ РІС‹РёРіСЂС‹С€: "<< opt_solve << endl;
+}
+
+void LabOptimizations::SolverLab6::Risks(Matrix &m, int rows, int lines)
+{
+	vector<int> opt_strategy_num;
+	int max = 0;
+	int max_sorrow=0;
+	int opt_sorrow;
+	int *sorrows = new int[lines];
+	int *maxs = new int[rows];
+	Matrix risk_matrix = m;
+
+	for(int i =0; i < rows ; i++ )                              // РЅР°С…РѕРґРёРј РјР°РєСЃРёРјР°Р»СЊРЅРѕ РІРѕР·РјРѕР¶РЅС‹Р№ РІС‹РёРіСЂС‹С€ РґР»СЏ РєР°Р¶РґРѕР№ СЃС‚СЂР°С‚РµРіРёРё РїСЂРёСЂРѕРґС‹
+		for(int j = 0; j < lines; j++)
+		{
+			if(m[i][j]>max)
+				max = m[i][j];
+			maxs[i] = max;
+			max = 0;
+		}
+
+	for(int i =0; i < rows ; i++ )                              //РїРѕСЃС‚СЂРѕРµРЅРёРµ С‚Р°Р±Р»РёС†С‹ СЂРёСЃРєРѕРІ
+		for(int j = 0; j < lines; j++)
+			risk_matrix[i][j] = maxs[i] - risk_matrix[i][j];
+
+	for(int i = 0; i < lines; i++)
+		for(int j = 0; j < rows; j++)
+		{
+			if(risk_matrix[i][j] > max_sorrow)
+				max_sorrow = risk_matrix[i][j];
+			sorrows[i] = max_sorrow;
+			max_sorrow = 0;
+		}
+
+	for(int i = 0; i < lines; i++)
+	{
+		opt_sorrow = risk_matrix[i][0];
+		if(sorrows[i]<opt_sorrow)
+			opt_sorrow = sorrows[i];
+	}
+
+	for(int i = 0; i < lines; i++)
+		if(sorrows[i] == opt_sorrow)
+			opt_strategy_num.push_back(i);
+
+	cout << "РћРїС‚РёРјР°Р»СЊРЅС‹Рµ СЃС‚СЂР°С‚РµРіРёРё:"<< endl;
+	for(int i=0; i<opt_strategy_num.size; i++)
+		cout << "a" << opt_strategy_num[i] << endl;
+	cout << "РЎРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ РѕР¶РёРґР°РµРјС‹Р№ РІС‹РёРіСЂС‹С€: "<< opt_sorrow << endl;
+}
