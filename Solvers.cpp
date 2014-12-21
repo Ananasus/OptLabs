@@ -122,13 +122,14 @@ LabOptimizations::SimplexMatrix LabOptimizations::SimplexMatrix::SimplexInvert()
 			b[i - 1][j] = (*this)[j - 1][i];
 	for (i = 1; i < rows; ++i)
 		b[i - 1][0] = (*this)[lines - 1][i];
-	for (i = 0; i < rows - 1; ++i)
+	for (i = 0; i < rows-1; ++i)
 		for (j = 0; j < lines; ++j)
 			b[i][j] *= -1;
-	b.row_labels = this->line_labels;
-	std::reverse(b.row_labels.begin(), b.row_labels.end());
-	b.line_labels = this->row_labels;
-
+	b.row_labels.push_back(0);
+	b.row_labels.insert(b.row_labels.begin()+1,this->line_labels.begin(), this->line_labels.end()-1);
+	b.max_x = this->max_x;
+	b.line_labels.assign(this->row_labels.begin()+1, this->row_labels.end());
+	b.line_labels.push_back(b.max_x-1);
 	return b;
 }
 

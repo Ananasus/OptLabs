@@ -274,13 +274,46 @@ void main() {
 	
 	case LAB_5:
 	{
-		cout << "Исходная симплекс таблица решений" << endl;
-		cout << a_s.toString();
 		bool is_failed = true;
-		float r1 = a_s.SimplexSolve(is_failed, false, true, true);
-		//четк
+		SimplexMatrix b = a.SimplexInvert();
 
-
+		cout << "Исходная симплекс-таблица игры для игрока А:" << endl;
+		cout << a_s.toString();
+		cout << "Симплекс-таблица игры для игрока B: " << endl;
+		cout << b.toString();
+		float r1 = a_s.SimplexSolve(is_failed, false, false, true);
+		float r2;
+		if (!is_failed)
+			r2 = -b.SimplexSolve(is_failed, false, false, true);
+		else
+			cout << "Расчет оптимального решения для игрока А был завершен с ошибкой." << std::endl;
+		if (!is_failed){
+			//g - минимальный выигрыш первого (цена игры). h - минимальный проигрыш второго (цена игры)
+			float g = 1 / r1, h = 1 / r2;
+			//ui = xi/g(x), nui = yi/h(y)
+			std::vector<float> u, nu;
+			u.assign(a_s[0].size()-1, 0);
+			nu.assign(a_s.size()-1, 0);
+			auto lambda_assign_probabilities = [](const SimplexMatrix &input_matrix, std::vector<float> &output_vector)->void {
+				for (size_t i = 0, s = input_matrix.size() - 1; i < s; ++i)
+					if (input_matrix.IsTargetFunctionParameter(i, true))
+						output_vector[input_matrix.LabelAtLine(i) - 1] = input_matrix[i][0];
+			};
+			auto lambda_print_strategies = [](const std::vector<float> &vars, const float price, const std::string &header, const char prefix)->void {
+				cout << header << std::endl;
+				for (size_t i = 0, s = vars.size(); i < s; i++)
+					cout << prefix << i + 1 << "=" << vars[i] * price << " ";
+				cout << std::endl;
+			};
+			lambda_assign_probabilities(a_s, u);
+			lambda_print_strategies(u, g, "Для игрока А оптимальной смешанной стратегией является: ", 'x');
+			lambda_assign_probabilities(b, nu);
+			lambda_print_strategies(nu, h, "Для игрока B оптимальной смешанной стратегией является: ", 'y');
+			cout << "Примечание - для игрока B стратегии нихрена не правильные. ЛОЛЛОЛОЛОЛ" << std::endl;
+		}
+		else
+			cout << "Симплекс метод решен с ошибкой." << endl;
+		
 	}
 		break;
 	default:

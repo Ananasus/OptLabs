@@ -47,8 +47,8 @@ namespace LabOptimizations {
 	class SimplexMatrix : public Matrix {
 		int max_x;
 		
-		std::vector<int> line_labels;
-		std::vector<int> row_labels;
+		std::vector<size_t> line_labels;
+		std::vector<size_t> row_labels;
 	protected:
 		void addLineLabel();
 		void addRowLabel();
@@ -81,6 +81,12 @@ namespace LabOptimizations {
 		bool IsTargetFunctionParameter(size_t index, bool is_line = true) const{
 			int r = (is_line ? this->line_labels[index] : this->row_labels[index] );
 			return r < this->row_labels.size();
+		}
+		size_t LabelAtLine(size_t line) const{
+			return this->line_labels[line];
+		}
+		size_t LabelAtRow(size_t row) const{
+			return this->row_labels[row];
 		}
 	};
 
